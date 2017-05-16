@@ -9,16 +9,27 @@ class AdminCmsUsersController extends \crocodicstudio\crudbooster\controllers\CB
 
 
 	public function cbInit() {
-		# START CONFIGURATION DO NOT REMOVE THIS LINE
-		$this->table               = 'cms_users';
-		$this->primary_key         = 'id';
-		$this->title_field         = "name";
-		$this->button_action_style = 'button_icon';	
-		$this->button_import 	   = FALSE;	
-		$this->button_export 	   = FALSE;	
-		# END CONFIGURATION DO NOT REMOVE THIS LINE
-	
-		# START COLUMNS DO NOT REMOVE THIS LINE
+
+			# START CONFIGURATION DO NOT REMOVE THIS LINE
+			$this->title_field = "name";
+			$this->limit = "20";
+			$this->orderby = "";
+			$this->global_privilege = false;
+			$this->button_table_action = true;
+			$this->button_bulk_action = false;
+			$this->button_action_style = "button_icon";
+			$this->button_add = true;
+			$this->button_edit = true;
+			$this->button_delete = true;
+			$this->button_detail = false;
+			$this->button_show = false;
+			$this->button_filter = false;
+			$this->button_import = false;
+			$this->button_export = false;
+			$this->table = "cms_users";
+			# END CONFIGURATION DO NOT REMOVE THIS LINE
+
+			# START COLUMNS DO NOT REMOVE THIS LINE
 		$this->col = array();
 		$this->col[] = array("label"=>"Name","name"=>"name");
 		$this->col[] = array("label"=>"Email","name"=>"email");
