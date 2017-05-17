@@ -6,6 +6,7 @@ use Session;
 use Request;
 use DB;
 use CRUDBooster;
+use App\Campaign;
 
 class AdminCampaignController extends \crocodicstudio\crudbooster\controllers\CBController {
 
@@ -331,4 +332,13 @@ class AdminCampaignController extends \crocodicstudio\crudbooster\controllers\CB
     }
 
     //By the way, you can still create your own method in here... :) 
+    
+    public function show_campaign($campaign_id){
+        
+//        visits increment by 1
+        $campaign = Campaign::find($campaign_id);
+        $campaign->visits += 1;
+        Campaign::where('id',$campaign_id)->update(['visits'=>$campaign->visits]);
+       return view('campaign/show')->with('campaign', $campaign);;
+    }
 }

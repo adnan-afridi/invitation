@@ -14,3 +14,4 @@
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('campaign/{id?}', 'AdminCampaignController@show_campaign');
