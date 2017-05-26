@@ -15,3 +15,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('campaign/{id?}', 'AdminCampaignController@show_campaign');
+Route::get('publish_campaign/{id?}', 'AdminCampaignPublishController@publish');
+Route::get('testemail', 'EmailController@sendEmail');
