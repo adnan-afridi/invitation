@@ -8,4 +8,8 @@ class Campaign extends Model
 {
     public $table = "campaign";
     //
+         public function user_profile()
+    {
+        return $this->hasOne('users');
+    }
 }
