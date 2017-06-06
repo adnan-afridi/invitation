@@ -18,8 +18,8 @@ class CreateCampaignPublishTable extends Migration
             $table->integer('campaign_id')->nullable()->unsigned();
             $table->foreign('campaign_id')->references('id')->on('campaign')->onDelete('cascade');
             
-            $table->integer('user_id')->nullable()->unsigned();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->text('users')->nullable();
+//            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
 
             $table->timestamps();

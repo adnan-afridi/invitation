@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('admin');
 });
 Route::get('campaign/{id?}', 'AdminCampaignController@show_campaign');
 Route::get('publish_campaign/{id?}', 'AdminCampaignPublishController@publish');
