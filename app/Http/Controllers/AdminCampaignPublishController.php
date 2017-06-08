@@ -16,44 +16,41 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
 
     public function cbInit() {
 
-			# START CONFIGURATION DO NOT REMOVE THIS LINE
-			$this->title_field = "id";
-			$this->limit = "20";
-			$this->orderby = "id,desc";
-			$this->global_privilege = false;
-			$this->button_table_action = true;
-			$this->button_bulk_action = true;
-			$this->button_action_style = "button_icon";
-			$this->button_add = true;
-			$this->button_edit = true;
-			$this->button_delete = true;
-			$this->button_detail = true;
-			$this->button_show = true;
-			$this->button_filter = true;
-			$this->button_import = false;
-			$this->button_export = false;
-			$this->table = "campaign_publish";
-			# END CONFIGURATION DO NOT REMOVE THIS LINE
+        # START CONFIGURATION DO NOT REMOVE THIS LINE
+        $this->title_field = "id";
+        $this->limit = "20";
+        $this->orderby = "id,desc";
+        $this->global_privilege = false;
+        $this->button_table_action = true;
+        $this->button_bulk_action = true;
+        $this->button_action_style = "button_icon";
+        $this->button_add = true;
+        $this->button_edit = true;
+        $this->button_delete = true;
+        $this->button_detail = true;
+        $this->button_show = true;
+        $this->button_filter = true;
+        $this->button_import = false;
+        $this->button_export = false;
+        $this->table = "campaign_publish";
+        # END CONFIGURATION DO NOT REMOVE THIS LINE
+        # START COLUMNS DO NOT REMOVE THIS LINE
+        $this->col = [];
+        $this->col[] = ["label" => "Campaign Id", "name" => "campaign_id", "join" => "campaign,campaign_title"];
+        $this->col[] = ["label" => "Users", "name" => "users"];
+        # END COLUMNS DO NOT REMOVE THIS LINE
+        # START FORM DO NOT REMOVE THIS LINE
+        $this->form = [];
+        $this->form[] = ['label' => 'Campaign Id', 'name' => 'campaign_id', 'type' => 'select2', 'validation' => 'required|integer|min:0', 'width' => 'col-sm-3', 'datatable' => 'campaign,campaign_title'];
+        $this->form[] = ['label' => 'Users', 'name' => 'users', 'type' => 'checkbox', 'validation' => 'required|min:0', 'width' => 'col-sm-3', 'datatable' => 'users,name'];
+        # END FORM DO NOT REMOVE THIS LINE
+        # OLD START FORM
+        //$this->form = [];
+        //$this->form[] = ['label'=>'Campaign Id','name'=>'campaign_id','type'=>'select2','validation'=>'required|integer|min:0','width'=>'col-sm-3','datatable'=>'campaign,campaign_title'];
+        //$this->form[] = ['label'=>'Users','name'=>'users','type'=>'checkbox','validation'=>'required|min:0','width'=>'col-sm-3','datatable'=>'users,name'];
+        # OLD END FORM
 
-			# START COLUMNS DO NOT REMOVE THIS LINE
-			$this->col = [];
-			$this->col[] = ["label"=>"Campaign Id","name"=>"campaign_id","join"=>"campaign,campaign_title"];
-			$this->col[] = ["label"=>"Users","name"=>"users"];
-			# END COLUMNS DO NOT REMOVE THIS LINE
-
-			# START FORM DO NOT REMOVE THIS LINE
-			$this->form = [];
-			$this->form[] = ['label'=>'Campaign Id','name'=>'campaign_id','type'=>'select2','validation'=>'required|integer|min:0','width'=>'col-sm-3','datatable'=>'campaign,campaign_title'];
-			$this->form[] = ['label'=>'Users','name'=>'users','type'=>'checkbox','validation'=>'required|min:0','width'=>'col-sm-3','datatable'=>'users,name'];
-			# END FORM DO NOT REMOVE THIS LINE
-
-			# OLD START FORM
-			//$this->form = [];
-			//$this->form[] = ['label'=>'Campaign Id','name'=>'campaign_id','type'=>'select2','validation'=>'required|integer|min:0','width'=>'col-sm-3','datatable'=>'campaign,campaign_title'];
-			//$this->form[] = ['label'=>'Users','name'=>'users','type'=>'checkbox','validation'=>'required|min:0','width'=>'col-sm-3','datatable'=>'users,name email'];
-			# OLD END FORM
-
-			/*
+        /*
           | ----------------------------------------------------------------------
           | Sub Module
           | ----------------------------------------------------------------------
@@ -79,7 +76,7 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
           | @showIf 	   = If condition when action show. Use field alias. e.g : [id] == 1
           |
          */
-        $this->addaction = array();
+        $this->addaction[] = ['label' => '', 'icon' => 'fa fa-money', 'color' => 'warning', 'url' => '/publish_campaign/[id]', 'showIf' => '[campaign_status] == "0"'];
 
 
         /*
@@ -222,6 +219,8 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
      */
 
     public function actionButtonSelected($id_selected, $button_name) {
+        echo $id_selected;
+        exit;
         //Your code here
     }
 
@@ -234,7 +233,8 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
      */
 
     public function hook_query_index(&$query) {
-//        print_r($query);exit;
+        $query->join('campaign AS c', 'c.id', '=', 'campaign_publish.id')->select('*')->get();
+//        dd($query);exit;
         //Your code here
     }
 
@@ -333,33 +333,46 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
 
         $campaign = Campaign::where('id', $campaign_id)->first();
         $cpData = CampaignPublish::where('campaign_id', $campaign_id)->get();
-        $userInfo = Users::where('id', $cpData[0]->user_id)->first();
-//                print_r($userInfo);exit;
+
+        $users = explode(';', $cpData[0]->users);
+        $users = "'" . implode("','", $users) . "'";
+
+        $userInfo = Users::whereRaw('name IN (' . $users . ')')->select('email')->get();
+
+        foreach ($userInfo as $user) {
+            $emails[] = $user->email;
+        }
+//        dd($emails);
+        $emails = "'" . implode("','", $emails) . "'";
+
         $EmailTemplate = EmailTemplate::where('title', 'Publish Campaign')->first();
 
         $subject = $campaign->campaign_title;
         $body = $campaign->campaign_desc;
         $content = $EmailTemplate->content;
-        $search = array('[TITLE]', '[CONTENT]');
+        $search = array('TITLE', 'CONTENT');
         $replace = array($subject, $body);
-        $email = str_replace($search, $replace, $content);
+        $emailBody = str_replace($search, $replace, $content);
 
-        Mail::send('email', [], function ($message) use ($title, $email, $userInfo) {
+        Mail::send('email', [], function ($message) use ($title, $emailBody, $emails, $userInfo) {
 
             $message->subject('Publish Campaign');
-            $message->to($userInfo->email);
-            $message->setBody($email, 'text/html');
+//            $message->to($emails);
+            $message->setBody($emailBody, 'text/html');
+            foreach ($userInfo as $user) {
+                $message->to($user->email);
+            }
         });
 
         if (count(Mail::failures()) > 0) {
 
-            echo "There was one or more failures. They were: <br />";
 
-            foreach (Mail::failures as $email_address) {
-                echo " - $email_address <br />";
-            }
+            $message = Mail::failures;
+            return redirect()->back()->with(['message' => implode(', ', $message), 'message_type' => 'danger']);
         } else {
-            echo "No errors, all sent successfully!";
+            $campaign = Campaign::where('id', $campaign_id)->update(['campaign_status'=>1]);
+            $message = array('Publishing successful.');
+            return redirect()->back()->with(['message' => implode(', ', $message), 'message_type' => 'success']);
         }
     }
 
