@@ -76,7 +76,7 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
           | @showIf 	   = If condition when action show. Use field alias. e.g : [id] == 1
           |
          */
-        $this->addaction[] = ['label' => '', 'icon' => 'fa fa-money', 'color' => 'warning', 'url' => '/publish_campaign/[id]', 'showIf' => '[campaign_status] == "0"'];
+        $this->addaction[] = ['label' => '', 'icon' => 'fa fa-money', 'color' => 'warning', 'url' => url('/publish_campaign/[id]'), 'showIf' => '[campaign_status] == "0"'];
 
 
         /*
@@ -345,8 +345,8 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
 //        dd($emails);
         $emails = "'" . implode("','", $emails) . "'";
 
-        $EmailTemplate = EmailTemplate::where('title', 'Publish Campaign')->first();
-
+        $EmailTemplate = EmailTemplate::where('campaign_id', $campaign_id)->first();
+      
         $subject = $campaign->campaign_title;
         $body = $campaign->campaign_desc;
         $content = $EmailTemplate->content;
@@ -370,7 +370,7 @@ class AdminCampaignPublishController extends \crocodicstudio\crudbooster\control
             $message = Mail::failures;
             return redirect()->back()->with(['message' => implode(', ', $message), 'message_type' => 'danger']);
         } else {
-            $campaign = Campaign::where('id', $campaign_id)->update(['campaign_status'=>1]);
+            $campaign = Campaign::where('id', $campaign_id)->update(['campaign_status' => 1]);
             $message = array('Publishing successful.');
             return redirect()->back()->with(['message' => implode(', ', $message), 'message_type' => 'success']);
         }
